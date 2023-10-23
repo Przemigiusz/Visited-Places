@@ -1,0 +1,317 @@
+<div class="container-fluid mt-2">
+  <div class="row centered">
+    <div class="col-10">
+      <div class="mat-elevation-z8">
+        <table mat-table matSort aria-label="Elements">
+          <!-- Id Column -->
+          <ng-container matColumnDef="Id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+            <td mat-cell *matCellDef="let row" (click)="showDetails(row)" tabindex="0">{{row.placeId}}</td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="Nazwa Wyspy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nazwa Wyspy</th>
+            <td mat-cell *matCellDef="let row" (click)="showDetails(row)" tabindex="0">{{row.islandName}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Nazwa Krainy">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nazwa Krainy</th>
+            <td mat-cell *matCellDef="let row" (click)="showDetails(row)" tabindex="0">{{row.landName}}</td>
+          </ng-container>
+
+          <!-- Name Column -->
+          <ng-container matColumnDef="Przyjazność">
+            <th mat-header-cell *matHeaderCellDef>Przyjazność</th>
+            <td mat-cell *matCellDef="let row" (click)="showDetails(row)" tabindex="0">
+              <div [ngClass]="{'is-friendly' : row.isFriendly, 'is-not-friendly' : !row.isFriendly}"></div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+        <mat-paginator #paginator [length]="dataSource.data.length" [pageIndex]="0" [pageSize]="10"
+          [pageSizeOptions]="[5, 10, 20]" aria-label="Select page">
+        </mat-paginator>
+      </div>
+    </div>
+    <div class="col-12 centered mt-5">
+      <button mat-raised-button color="primary" (click)="showNewNoteForm()">Add Place</button>
+    </div>
+  </div>
+</div>
+
+<ng-container *ngIf="areDetailsShown">
+  <div class="container-fluid detailed-card-container">
+    <mat-card class="detailed-card mt-5 detailed-card-alias">
+      <div class="row">
+        <div class="col-12">
+          <mat-card-header class="row">
+            <div class="col-2">
+              <mat-icon class="localisationIcon"> place</mat-icon>
+            </div>
+            <div class="col-10">
+              <div class="row">
+                <mat-card-title class="col-12 localisation-data">
+                  {{visitedPlaceDetails.landName}}
+                </mat-card-title>
+                <mat-card-subtitle class="col-12 localisation-data">
+                  {{visitedPlaceDetails.islandName}}
+                </mat-card-subtitle>
+              </div>
+            </div>
+          </mat-card-header>
+        </div>
+        <div class="col-12">
+          <mat-card-content>
+            <div class="row">
+              <div class="col-6 property">
+                <div class="row">
+                  <div class="col-12 centered">
+                    Data Przybycia
+                  </div>
+                  <div class="col-12 centered">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span class="data">{{visitedPlaceDetails.dateOfArrival}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 property">
+                <div class="row">
+                  <div class="col-12 centered">
+                    Data Odpłynięcia
+                  </div>
+                  <div class="col-12 centered">
+                    <mat-icon>calendar_today</mat-icon>
+                    <span class="data">{{visitedPlaceDetails.dateOfDeparture}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 property">
+                <div class="row">
+                  <div class="col-12 centered">
+                    Liczba Mieszkańców
+                  </div>
+                  <div class="col-12 centered">
+                    <mat-icon>people</mat-icon>
+                    <span class="data">{{visitedPlaceDetails.amountOfTribes}} {{tribeVariant}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6 property">
+                <div class="row">
+                  <div class="col-12 centered">
+                    Przyjazność
+                  </div>
+                  <div class="col-12 centered">
+                    <mat-icon>sentiment_very_satisfied</mat-icon>
+                    <div
+                      [ngClass]="{'is-friendly-sv': visitedPlaceDetails.isFriendly, 'is-not-friendly-sv': !visitedPlaceDetails.isFriendly}">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <ng-container *ngIf="visitedPlaceDetails.items.length > 0">
+                <div class="col-12">
+                  <div class="row">
+                    <div class="col-12 centered">
+                      Znalezione Przedmioty
+                    </div>
+                    <div class="col-12 centered">
+                      <mat-icon>work</mat-icon>
+                      <span class="data" *ngFor="let item of visitedPlaceDetails.items; let last = last">
+                        {{item.itemName}} x{{item.amount}}<ng-container *ngIf="!last"><span>, </span></ng-container>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </mat-card-content>
+        </div>
+        <div class="col-12 centered">
+          <mat-card-actions>
+            <button mat-raised-button color="primary" (click)="showEditForm()">EDIT</button>
+          </mat-card-actions>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="isEditFormShown">
+  <div class="glass">
+    <form class="container-fluid centered mt-5">
+      <div class="row centered">
+        <div class="col-4 edit-form-alias edit-form">
+          <div class="row">
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Nazwa Wyspy</mat-label>
+                <input matInput [(ngModel)]="visitedPlaceDetails.islandName" [ngModelOptions]="{ standalone: true }">
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Nazwa Krainy</mat-label>
+                <input matInput [(ngModel)]="visitedPlaceDetails.landName" [ngModelOptions]="{ standalone: true }">
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Data Przybycia</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="visitedPlaceDetails.dateOfArrival"
+                  [ngModelOptions]="{ standalone: true }">
+                <mat-hint class="date-format">MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Data Odpłynięcia</mat-label>
+                <input matInput [matDatepicker]="picker" [(ngModel)]="visitedPlaceDetails.dateOfDeparture"
+                  [ngModelOptions]="{ standalone: true }">
+                <mat-hint class="date-format">MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Liczba Mieszkańców</mat-label>
+                <input matInput type="number" [(ngModel)]="visitedPlaceDetails.amountOfTribes"
+                  [ngModelOptions]="{ standalone: true }">
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Czy są przyjaźni?</mat-label>
+                <mat-select [(value)]="visitedPlaceDetails.isFriendly">
+                  <mat-option [value]="true">Tak</mat-option>
+                  <mat-option [value]="false">Nie</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered justify-content-evenly">
+              <button mat-raised-button color="primary" (click)="showEditForm()">Save</button>
+              <button mat-raised-button color="primary" (click)="showEditForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="isAddFormShown">
+  <div class="glass">
+    <form [formGroup]="addVisitedPlaceForm" (ngSubmit)="submitForm()" class="container-fluid centered mt-5">
+      <div class="row centered">
+        <div class="col-4 edit-form-alias edit-form">
+          <div class="row">
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Nazwa Wyspy</mat-label>
+                <input matInput formControlName="islandName" type="text">
+                <mat-error *ngIf="addVisitedPlaceForm.get('islandName')?.invalid">Pole "Nazwa Wyspy" jest
+                  wymagane</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Nazwa Krainy</mat-label>
+                <input matInput formControlName="landName" type="text">
+                <mat-error *ngIf="addVisitedPlaceForm.get('landName')?.invalid">Pole "Nazwa Krainy" jest
+                  wymagane</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Data Przybycia</mat-label>
+                <input matInput [matDatepicker]="picker" formControlName="dateOfArrival">
+                <mat-error *ngIf="addVisitedPlaceForm.get('dateOfArrival')?.invalid">Pole "Data Przybycia" jest
+                  wymagane</mat-error>
+                <mat-hint class="date-format">MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Data Odpłynięcia</mat-label>
+                <input matInput [matDatepicker]="picker1" formControlName="dateOfDeparture">
+                <mat-error *ngIf="addVisitedPlaceForm.get('dateOfDeparture')?.hasError('required')">Pole "Data
+                  Odpłynięcia" jest
+                  wymagane</mat-error>
+                <mat-error *ngIf="addVisitedPlaceForm.get('dateOfDeparture')?.hasError('laterThan')">Niezgodność Dat
+                  Przybycia i Odpłynięcia</mat-error>
+                <mat-hint class="date-format">MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Liczba Mieszkańców</mat-label>
+                <input matInput type="number" formControlName="amountOfTribes">
+                <mat-error *ngIf="addVisitedPlaceForm.get('amountOfTribes')?.invalid">Pole "Liczba Mieszkańców" jest
+                  wymagane</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Czy są przyjaźni?</mat-label>
+                <mat-select formControlName="isFriendly">
+                  <mat-option [value]="true">Tak</mat-option>
+                  <mat-option [value]="false">Nie</mat-option>
+                </mat-select>
+                <mat-error *ngIf="addVisitedPlaceForm.get('isFriendly')?.hasError('required')">Pole "Czy Są Przyjaźni"
+                  jest
+                  wymagane</mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-8 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Znalezione przedmioty</mat-label>
+                <input matInput type="text" formControlName="foundItemName">
+              </mat-form-field>
+            </div>
+            <div class="col-4 centered">
+              <mat-form-field class="full-width">
+                <mat-label>Ilość</mat-label>
+                <input matInput type="number" formControlName="foundItemAmount">
+              </mat-form-field>
+            </div>
+            <div class="col-12 centered justify-content-center">
+              <button mat-raised-button color="accent" (click)="addItem()">Add item</button>
+            </div>
+            <ng-container *ngIf="newVisitedPlaceItems.length > 0">
+              <div class="col-12 mt-2">
+                <div class="row">
+                  <div class="col-12 centered">
+                    Znalezione Przedmioty
+                  </div>
+                  <div class="col-12 centered">
+                    <mat-icon>work</mat-icon>
+                    <span class="data" *ngFor="let item of newVisitedPlaceItems; let last = last">
+                      {{item.itemName}} x{{item.amount}}<ng-container *ngIf="!last"><span
+                          class="space">,</span></ng-container>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+            <div class="col-12 centered justify-content-between mt-4">
+              <button type="submit" class="addCancel" mat-raised-button color="primary"
+                (click)="showNewNoteForm()">Add</button>
+              <button class="addCancel" mat-raised-button color="primary" (click)="showNewNoteForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-container>

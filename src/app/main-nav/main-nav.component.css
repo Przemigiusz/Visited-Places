@@ -1,0 +1,41 @@
+@import '../../my-theme.scss';
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+}
+
+a.mat-button,
+a.mat-nav-item {
+  color: white;
+  text-decoration-line: none;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #f8f9fa;
+}
+
+a.mat-button {
+  font-size: 1.2rem;
+}
+
+a.mat-nav-item {
+  color: var(--my-accent-palette-700);
+}
+
+a.mat-nav-list {
+  margin-right: 1rem;
+}
+
+a.mat-nav-item {
+  margin-right: 1.5rem;
+}
+
+a.mat-nav-list:last-of-type {
+  margin-right: 0px;
+}
+
+a.mat-nav-item,
+a.mat-nav-list {
+  position: relative;
+  top: 2px;
+}
